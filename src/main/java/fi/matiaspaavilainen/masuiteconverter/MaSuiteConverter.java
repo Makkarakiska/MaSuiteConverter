@@ -31,6 +31,9 @@ public class MaSuiteConverter extends Plugin {
         setup();
     }
 
+    public void onDisable(){
+        db.hikari.close();
+    }
 
     private void setup(){
         setupHomes();
