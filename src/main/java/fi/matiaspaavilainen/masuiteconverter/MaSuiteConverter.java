@@ -4,7 +4,6 @@ import fi.matiaspaavilainen.masuiteconverter.commands.Convert;
 import fi.matiaspaavilainen.masuitecore.Updator;
 import fi.matiaspaavilainen.masuitecore.config.Configuration;
 import fi.matiaspaavilainen.masuitecore.database.Database;
-import fi.matiaspaavilainen.masuitehomes.MaSuiteHomes;
 import net.md_5.bungee.api.plugin.Plugin;
 
 public class MaSuiteConverter extends Plugin {
@@ -27,7 +26,7 @@ public class MaSuiteConverter extends Plugin {
 
         new Configuration().create(this,"converter", "config.yml");
         // EDIT AFTER RESOURCE POST
-        // new Updator().checkVersion(this.getDescription(), "");
+        new Updator().checkVersion(this.getDescription(), "61070");
         setup();
     }
 

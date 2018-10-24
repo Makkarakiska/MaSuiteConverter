@@ -1,5 +1,5 @@
 name: MaSuiteConverter
 main: fi.matiaspaavilainen.masuiteconverter.MaSuiteConverter
-version: 1.0
+version: 1.1
 author: Masagameplay
 depends: [MaSuiteCore]
