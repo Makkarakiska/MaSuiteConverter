@@ -1,11 +1,12 @@
 package fi.matiaspaavilainen.masuiteconverter;
 
-import fi.matiaspaavilainen.masuitecore.MaSuiteCore;
 import fi.matiaspaavilainen.masuitecore.config.Configuration;
 import fi.matiaspaavilainen.masuitecore.database.Database;
 import fi.matiaspaavilainen.masuitecore.managers.Location;
 import fi.matiaspaavilainen.masuitecore.managers.MaSuitePlayer;
 import fi.matiaspaavilainen.masuitehomes.Home;
+import fi.matiaspaavilainen.masuiteportals.Portal;
+import fi.matiaspaavilainen.masuiteteleports.MaSuiteTeleports;
 import fi.matiaspaavilainen.masuiteteleports.managers.Spawn;
 import fi.matiaspaavilainen.masuitewarps.Warp;
 
@@ -20,20 +21,22 @@ import java.util.Set;
 
 public class BungeeSuite {
 
-    private Database db = MaSuiteCore.db;
+    private Database db = MaSuiteConverter.db;
     private Connection connection = null;
     private PreparedStatement statement = null;
     private Configuration config = new Configuration();
-    private String tablePrefix = config.load("converter", "config.yml").getString("bungeesuite-prefix");
+    private String bsPrefix = config.load("converter", "config.yml").getString("bungeesuite-prefix");
+    private String msPrefix = config.load(null, "config.yml").getString("database.table-prefix");
 
     private Set<Home> getHomes() {
         Set<Home> homes = new HashSet<>();
         ResultSet rs = null;
         try {
             connection = db.hikari.getConnection();
-            statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "homes");
+            statement = connection.prepareStatement("SELECT * FROM " + bsPrefix + "homes");
             rs = statement.executeQuery();
             PlayerDataFetcher pdf = new PlayerDataFetcher();
+
             while (rs.next()) {
                 Home home = new Home();
                 String username = rs.getString("player");
@@ -84,12 +87,77 @@ public class BungeeSuite {
         System.out.println("[MaSuite] [Converter] [Homes] Converting done");
     }
 
+    private Set<Portal> getPortals() {
+        Set<Portal> portals = new HashSet<>();
+        ResultSet rs = null;
+        try {
+            connection = db.hikari.getConnection();
+            statement = connection.prepareStatement("SELECT * FROM " + bsPrefix + "portals");
+            rs = statement.executeQuery();
+            while (rs.next()) {
+                Portal portal = new Portal();
+                portal.setName(rs.getString("name"));
+                portal.setServer(rs.getString("server"));
+                portal.setType("warp");
+                portal.setDestination(rs.getString("destination"));
+                portal.setMinLoc(new Location(rs.getString("world"), rs.getDouble("loc1_x"), rs.getDouble("loc1_y"), rs.getDouble("loc1_z")));
+                portal.setMaxLoc(new Location(rs.getString("world"), rs.getDouble("loc2_x"), rs.getDouble("loc2_y"), rs.getDouble("loc2_z")));
+                switch (rs.getString("type").toLowerCase()) {
+                    case ("nothing"):
+                        portal.setFillType("air");
+                        break;
+                    case ("nether"):
+                        portal.setFillType("nether_portal");
+                        break;
+                    case ("water"):
+                        portal.setFillType("water");
+                        break;
+                    default:
+                        portal.setFillType("air");
+                        break;
+                }
+                portals.add(portal);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return portals;
+    }
+
+    public void convertPortals() {
+        for (Portal portal : getPortals()) {
+            portal.save();
+        }
+        System.out.println("[MaSuite] [Converter] [Portals] Converting done");
+    }
     private Set<Warp> getWarps() {
         Set<Warp> warps = new HashSet<>();
         ResultSet rs = null;
         try {
             connection = db.hikari.getConnection();
-            statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "warps");
+            statement = connection.prepareStatement("SELECT * FROM " + bsPrefix + "warps");
             rs = statement.executeQuery();
             while (rs.next()) {
                 Warp warp = new Warp();
@@ -139,8 +207,8 @@ public class BungeeSuite {
         Set<Spawn> spawns = new HashSet<>();
         ResultSet rs = null;
         try {
-            connection = db.hikari.getConnection();
-            statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "spawns");
+            connection = MaSuiteTeleports.db.hikari.getConnection();
+            statement = connection.prepareStatement("SELECT * FROM " + bsPrefix + "spawns");
             rs = statement.executeQuery();
             while (rs.next()) {
                 Spawn spawn = new Spawn();
@@ -188,7 +256,7 @@ public class BungeeSuite {
         ResultSet rs = null;
         try {
             connection = db.hikari.getConnection();
-            statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "players");
+            statement = connection.prepareStatement("SELECT * FROM " + msPrefix + "players");
             rs = statement.executeQuery();
             PlayerDataFetcher pdf = new PlayerDataFetcher();
             while (rs.next()) {

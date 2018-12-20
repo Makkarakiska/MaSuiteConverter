@@ -39,30 +39,34 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.2.4</version>
-        </dependency>
-        <dependency>
             <groupId>com.github.masagameplay</groupId>
             <artifactId>masuitecore</artifactId>
-            <version>9b7c56dbd7</version>
+            <version>5f8cdc98b0</version>
+            <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>com.github.masagameplay</groupId>
             <artifactId>masuitehomes</artifactId>
-            <version>5b1c77e7cf</version>
+            <version>6ef4bf6109</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.masagameplay</groupId>
             <artifactId>masuitewarps</artifactId>
-            <version>63cedcc9a7</version>
+            <version>c22123ad91</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.masagameplay</groupId>
             <artifactId>masuiteteleports</artifactId>
-            <version>3a6030ce47</version>
+            <version>41c88712bf</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.masagameplay</groupId>
+            <artifactId>masuiteportals</artifactId>
+            <version>833708e632</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

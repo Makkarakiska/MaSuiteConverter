@@ -1,11 +1,11 @@
 package fi.matiaspaavilainen.masuiteconverter;
 
-import fi.matiaspaavilainen.masuitecore.MaSuiteCore;
 import fi.matiaspaavilainen.masuitecore.config.Configuration;
 import fi.matiaspaavilainen.masuitecore.database.Database;
 import fi.matiaspaavilainen.masuitecore.managers.Location;
 import fi.matiaspaavilainen.masuitecore.managers.MaSuitePlayer;
 import fi.matiaspaavilainen.masuitehomes.Home;
+import fi.matiaspaavilainen.masuiteportals.Portal;
 import fi.matiaspaavilainen.masuiteteleports.managers.Spawn;
 import fi.matiaspaavilainen.masuitewarps.Warp;
 
@@ -21,35 +21,27 @@ import java.util.UUID;
 
 public class ProxySuite {
 
-    private Database db = MaSuiteCore.db;
+    private Database db = MaSuiteConverter.db;
     private Connection connection = null;
     private PreparedStatement statement = null;
     private Configuration config = new Configuration();
-    private String tablePrefix = config.load("converter", "config.yml").getString("proxysuite-prefix");
+    private String psPrefix = config.load("converter", "config.yml").getString("proxysuite-prefix");
 
     private Set<Home> getHomes() {
         Set<Home> homes = new HashSet<>();
         ResultSet rs = null;
         try {
             connection = db.hikari.getConnection();
-            statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "homes");
+            statement = connection.prepareStatement("SELECT * FROM " + psPrefix + "homes");
             rs = statement.executeQuery();
-            PlayerDataFetcher pdf = new PlayerDataFetcher();
             while (rs.next()) {
                 Home home = new Home();
-                String username = rs.getString("player");
-                pdf.load(username);
-                Thread.sleep(config.load("converter", "config.yml").getInt("wait-before-next") * 1000);
-                if (pdf.getUUID(rs.getString("player")) != null) {
-                    home.setId(rs.getInt("id"));
-                    home.setName(rs.getString("name"));
-                    home.setServer(rs.getString("server"));
-                    home.setOwner(UUID.fromString(rs.getString("player")));
-                    home.setLocation(new Location(rs.getString("world"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"), rs.getFloat("yaw"), rs.getFloat("pitch")));
-                    homes.add(home);
-                } else {
-                    System.out.println("[MaSuite] [MaSuiteConverter] [Skipped] Error while converting " + username + "'s home.");
-                }
+                home.setId(rs.getInt("id"));
+                home.setName(rs.getString("name"));
+                home.setServer(rs.getString("server"));
+                home.setOwner(UUID.fromString(rs.getString("player")));
+                home.setLocation(new Location(rs.getString("world"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"), rs.getFloat("yaw"), rs.getFloat("pitch")));
+                homes.add(home);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -79,15 +71,77 @@ public class ProxySuite {
         return homes;
     }
 
-    public void convertHomes(){
+    public void convertHomes() {
         for (Home home : getHomes()) {
             home.set(home);
         }
         System.out.println("[MaSuite] [Converter] [Homes] Converting done");
     }
 
-    public void convertPortals(){
+    private Set<Portal> getPortals() {
+        Set<Portal> portals = new HashSet<>();
+        ResultSet rs = null;
+        try {
+            connection = db.hikari.getConnection();
+            statement = connection.prepareStatement("SELECT * FROM " + psPrefix + "portals");
+            rs = statement.executeQuery();
+            while (rs.next()) {
+                Portal portal = new Portal();
+                portal.setName(rs.getString("name"));
+                portal.setServer(rs.getString("server"));
+                portal.setType("warp");
+                portal.setDestination(rs.getString("destination"));
+                portal.setMinLoc(new Location(rs.getString("world"), rs.getDouble("loc1_x"), rs.getDouble("loc1_y"), rs.getDouble("loc1_z")));
+                portal.setMaxLoc(new Location(rs.getString("world"), rs.getDouble("loc2_x"), rs.getDouble("loc2_y"), rs.getDouble("loc2_z")));
+                switch (rs.getString("type").toLowerCase()) {
+                    case ("nothing"):
+                        portal.setFillType("air");
+                        break;
+                    case ("nether"):
+                        portal.setFillType("nether_portal");
+                        break;
+                    case ("water"):
+                        portal.setFillType("water");
+                        break;
+                    default:
+                        portal.setFillType("air");
+                        break;
+                }
+                portals.add(portal);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (statement != null) {
+                try {
+                    statement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return portals;
+    }
 
+    public void convertPortals() {
+        for (Portal portal : getPortals()) {
+            portal.save();
+        }
+        System.out.println("[MaSuite] [Converter] [Portals] Converting done");
     }
 
     private Set<Warp> getWarps() {
@@ -95,7 +149,7 @@ public class ProxySuite {
         ResultSet rs = null;
         try {
             connection = db.hikari.getConnection();
-            statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "warps");
+            statement = connection.prepareStatement("SELECT * FROM " + psPrefix + "warps");
             rs = statement.executeQuery();
             while (rs.next()) {
                 Warp warp = new Warp();
@@ -135,7 +189,7 @@ public class ProxySuite {
         return warps;
     }
 
-    public void convertWarps(){
+    public void convertWarps() {
         for (Warp warp : getWarps()) {
             warp.create(warp);
         }
@@ -147,12 +201,13 @@ public class ProxySuite {
         ResultSet rs = null;
         try {
             connection = db.hikari.getConnection();
-            statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "spawns");
+            statement = connection.prepareStatement("SELECT * FROM " + psPrefix + "spawns");
             rs = statement.executeQuery();
             while (rs.next()) {
                 Spawn spawn = new Spawn();
                 spawn.setServer(rs.getString("server"));
                 spawn.setLocation(new Location(rs.getString("world"), rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"), rs.getFloat("yaw"), rs.getFloat("pitch")));
+                spawn.setType(rs.getString("type").equals("normal") ? 0 : 1);
                 spawns.add(spawn);
             }
         } catch (Exception e) {
@@ -187,6 +242,7 @@ public class ProxySuite {
         for (Spawn spawn : getSpawns()) {
             spawn.create(spawn);
         }
+
         System.out.println("[MaSuite] [Converter] [Spawns] Converting done");
     }
 
@@ -195,21 +251,21 @@ public class ProxySuite {
         ResultSet rs = null;
         try {
             connection = db.hikari.getConnection();
-            statement = connection.prepareStatement("SELECT * FROM " + tablePrefix + "players");
+            statement = connection.prepareStatement("SELECT * FROM " + psPrefix + "players");
             rs = statement.executeQuery();
             while (rs.next()) {
-                    MaSuitePlayer msp = new MaSuitePlayer();
-                    msp.setUUID(UUID.fromString(rs.getString("uuid")));
-                    msp.setUsername(rs.getString("name"));
-                    msp.setNickname(null);
-                    msp.setIpAddress(rs.getString("127.0.0.1"));
-                    LocalDate firstJoin = rs.getDate("first_join").toLocalDate();
-                    LocalDate lastJoin = rs.getDate("last_seen").toLocalDate();
-                    msp.setFirstLogin(firstJoin.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli());
-                    msp.setLastLogin(lastJoin.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli());
+                MaSuitePlayer msp = new MaSuitePlayer();
+                msp.setUUID(UUID.fromString(rs.getString("uuid")));
+                msp.setUsername(rs.getString("name"));
+                msp.setNickname(null);
+                msp.setIpAddress("not-provided");
+                LocalDate firstJoin = rs.getDate("first_join").toLocalDate();
+                LocalDate lastJoin = rs.getDate("last_seen").toLocalDate();
+                msp.setFirstLogin(firstJoin.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli());
+                msp.setLastLogin(lastJoin.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli());
 
-                    players.add(msp);
-                }
+                players.add(msp);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

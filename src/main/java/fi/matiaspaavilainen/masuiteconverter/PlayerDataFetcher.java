@@ -17,26 +17,26 @@ import java.util.UUID;
 public class PlayerDataFetcher {
 
     private HashMap<String, UUID> players = new HashMap<>();
-    void load(String name) {
+
+    public void load(String name) {
         if (!players.containsKey(name)) {
             ProxyServer.getInstance().getScheduler().runAsync(new MaSuiteCore(), () -> {
                 HttpURLConnection request;
                 try {
-                    URL url = new URL("https://use.gameapis.net/mc/player/uuid/" + name);
+                    URL url = new URL("https://api.ashcon.app/mojang/v1/user/" + name);
                     request = (HttpURLConnection) url.openConnection();
                     request.setDoOutput(true);
                     request.setRequestMethod("GET");
-
+                    request.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
                     request.connect();
-                    JsonParser jp = new JsonParser();
-                    JsonElement element = jp.parse(new InputStreamReader((InputStream) request.getContent()));
-                    JsonObject obj = element.getAsJsonObject();
 
                     if (request.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                        if (obj.get("error") == null) {
-                            players.put(name, UUID.fromString(obj.get("uuid_formatted").getAsString()));
-                        }
-
+                        JsonParser jp = new JsonParser();
+                        JsonElement element = jp.parse(new InputStreamReader((InputStream) request.getContent()));
+                        JsonObject obj = element.getAsJsonObject();
+                        players.put(name, UUID.fromString(obj.get("uuid").getAsString()));
+                    } else {
+                        System.out.println("[MaSuite] [MaSuiteConverter] [Skipped] Can't find " + name + "'s player data.");
                     }
                 } catch (IOException e) {
                     System.out.println(name);

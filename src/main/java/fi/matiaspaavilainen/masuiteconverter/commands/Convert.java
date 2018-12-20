@@ -2,6 +2,7 @@ package fi.matiaspaavilainen.masuiteconverter.commands;
 
 import fi.matiaspaavilainen.masuiteconverter.BungeeSuite;
 import fi.matiaspaavilainen.masuiteconverter.MaSuiteConverter;
+import fi.matiaspaavilainen.masuiteconverter.PlayerDataFetcher;
 import fi.matiaspaavilainen.masuiteconverter.ProxySuite;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -19,70 +20,75 @@ public class Convert extends Command {
     public void execute(CommandSender cs, String[] args) {
         String[] plugins = {"homes", "portals", "warps", "spawns", "players"};
         List<String> list = Arrays.asList(plugins);
-        if(args.length == 2){
-            if(list.contains(args[1].toLowerCase())){
+        if (args.length == 2) {
+            if (list.contains(args[1].toLowerCase())) {
                 BungeeSuite bs = new BungeeSuite();
                 ProxySuite ps = new ProxySuite();
-                switch (args[1].toLowerCase()){
-                    case("homes"):
-                        if(MaSuiteConverter.homes){
+                switch (args[1].toLowerCase()) {
+                    case ("homes"):
+                        if (MaSuiteConverter.homes) {
                             System.out.println("[MaSuite] [MaSuiteConverter] started converting...");
-                            if(args[1].equalsIgnoreCase("bungeesuite")){
+                            if (args[0].equalsIgnoreCase("bungeesuite")) {
                                 bs.convertHomes();
-                            } else if(args[1].equalsIgnoreCase("proxysuite")){
+                            } else if (args[0].equalsIgnoreCase("proxysuite")) {
                                 ps.convertHomes();
                             }
 
-                        }else{
+                        } else {
                             System.out.println("[MaSuite] [MaSuiteConverter] Homes are not initialized");
                         }
                         break;
                     case ("portals"):
-                        if(MaSuiteConverter.portals){
+                        if (MaSuiteConverter.portals) {
                             System.out.println("[MaSuite] [MaSuiteConverter] started converting...");
-                        }else{
+                            if (args[0].equalsIgnoreCase("bungeesuite")) {
+                                bs.convertPortals();
+                            } else if (args[0].equalsIgnoreCase("proxysuite")) {
+                                ps.convertPortals();
+                            }
+                        } else {
                             System.out.println("[MaSuite] [MaSuiteConverter] Portals are not initialized");
                         }
                         break;
-                    case("warps"):
-                        if(MaSuiteConverter.warps){
+                    case ("warps"):
+                        if (MaSuiteConverter.warps) {
                             System.out.println("[MaSuite] [MaSuiteConverter] started converting...");
-                            if(args[1].equalsIgnoreCase("bungeesuite")){
+                            if (args[0].equalsIgnoreCase("bungeesuite")) {
                                 bs.convertWarps();
-                            } else if(args[1].equalsIgnoreCase("proxysuite")){
+                            } else if (args[0].equalsIgnoreCase("proxysuite")) {
                                 ps.convertWarps();
                             }
-                        }else{
+                        } else {
                             System.out.println("[MaSuite] [MaSuiteConverter] Warps are not initialized");
                         }
                         break;
-                    case("spawns"):
-                        if(MaSuiteConverter.teleports){
+                    case ("spawns"):
+                        if (MaSuiteConverter.teleports) {
                             System.out.println("[MaSuite] [MaSuiteConverter] started converting...");
-                            if(args[1].equalsIgnoreCase("bungeesuite")){
+                            if (args[0].equalsIgnoreCase("bungeesuite")) {
                                 bs.convertSpawns();
-                            } else if(args[1].equalsIgnoreCase("proxysuite")){
+                            } else if (args[0].equalsIgnoreCase("proxysuite")) {
                                 ps.convertSpawns();
                             }
-                        }else{
+                        } else {
                             System.out.println("[MaSuite] [MaSuiteConverter] Spawns are not initialized");
                         }
                         break;
-                    case("players"):
-                        if(MaSuiteConverter.core) {
+                    case ("players"):
+                        if (MaSuiteConverter.core) {
                             System.out.println("[MaSuite] [MaSuiteConverter] started converting...");
-                            if(args[1].equalsIgnoreCase("bungeesuite")){
+                            if (args[0].equalsIgnoreCase("bungeesuite")) {
                                 bs.convertPlayers();
-                            } else if(args[1].equalsIgnoreCase("proxysuite")){
+                            } else if (args[0].equalsIgnoreCase("proxysuite")) {
                                 ps.convertPlayers();
                             }
-                        }else{
+                        } else {
                             System.out.println("[MaSuite] [MaSuiteConverter] Core is not initialized");
                         }
                         break;
                 }
             }
-        }else{
+        } else {
             cs.sendMessage(new TextComponent("Please specify what do you want convert:"));
             cs.sendMessage(new TextComponent("List of plugins: homes, portals, warps, spawns or players."));
         }

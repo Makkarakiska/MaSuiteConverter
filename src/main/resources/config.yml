@@ -1,1 +1,3 @@
 wait-before-next: 2 #By increasing this can help converting more data (seconds)
+proxysuite-prefix: ""
+bungeesuite-prefix: "bungee"

@@ -25,7 +25,6 @@ public class MaSuiteConverter extends Plugin {
         getProxy().getPluginManager().registerCommand(this, new Convert());
 
         new Configuration().create(this,"converter", "config.yml");
-        // EDIT AFTER RESOURCE POST
         new Updator().checkVersion(this.getDescription(), "61070");
         setup();
     }
