@@ -6,7 +6,17 @@
 
     <groupId>fi.matiaspaavilainen</groupId>
     <artifactId>MaSuiteConverter</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>codemc-snapshots</id>
+            <url>https://repo.codemc.org/repository/maven-snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>codemc-releases</id>
+            <url>https://repo.codemc.org/repository/maven-releases/</url>
+        </repository>
+    </distributionManagement>
     <build>
         <plugins>
             <plugin>
@@ -19,11 +29,17 @@
                 </configuration>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
     <repositories>
         <repository>
-            <id>bungeecord-repo</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>codemc-repo</id>
+            <url>https://repo.codemc.org/repository/maven-public/</url>
         </repository>
         <repository>
             <id>jitpack.io</id>
@@ -39,34 +55,30 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.masagameplay</groupId>
+            <groupId>fi.matiaspaavilainen</groupId>
             <artifactId>masuitecore</artifactId>
-            <version>5f8cdc98b0</version>
+            <version>1.5.5-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.masagameplay</groupId>
             <artifactId>masuitehomes</artifactId>
-            <version>6ef4bf6109</version>
-            <scope>provided</scope>
+            <version>4d0ba3d905</version>
         </dependency>
         <dependency>
             <groupId>com.github.masagameplay</groupId>
             <artifactId>masuitewarps</artifactId>
-            <version>c22123ad91</version>
-            <scope>provided</scope>
+            <version>9cde7f2791</version>
         </dependency>
         <dependency>
             <groupId>com.github.masagameplay</groupId>
             <artifactId>masuiteteleports</artifactId>
-            <version>41c88712bf</version>
-            <scope>provided</scope>
+            <version>d2311487b7</version>
         </dependency>
         <dependency>
             <groupId>com.github.masagameplay</groupId>
             <artifactId>masuiteportals</artifactId>
-            <version>833708e632</version>
-            <scope>provided</scope>
+            <version>718df5381f</version>
         </dependency>
     </dependencies>
 </project>
