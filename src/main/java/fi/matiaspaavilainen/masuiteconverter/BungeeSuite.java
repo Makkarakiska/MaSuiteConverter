@@ -1,14 +1,14 @@
 package fi.matiaspaavilainen.masuiteconverter;
 
-import fi.matiaspaavilainen.masuitecore.config.Configuration;
-import fi.matiaspaavilainen.masuitecore.database.Database;
-import fi.matiaspaavilainen.masuitecore.managers.Location;
-import fi.matiaspaavilainen.masuitecore.managers.MaSuitePlayer;
-import fi.matiaspaavilainen.masuitehomes.Home;
-import fi.matiaspaavilainen.masuiteportals.Portal;
-import fi.matiaspaavilainen.masuiteteleports.MaSuiteTeleports;
-import fi.matiaspaavilainen.masuiteteleports.managers.Spawn;
-import fi.matiaspaavilainen.masuitewarps.Warp;
+import fi.matiaspaavilainen.masuitecore.core.configuration.BungeeConfiguration;
+import fi.matiaspaavilainen.masuitecore.core.database.ConnectionManager;
+import fi.matiaspaavilainen.masuitecore.core.database.Database;
+import fi.matiaspaavilainen.masuitecore.core.objects.Location;
+import fi.matiaspaavilainen.masuitecore.core.objects.MaSuitePlayer;
+import fi.matiaspaavilainen.masuitehomes.core.Home;
+import fi.matiaspaavilainen.masuiteportals.core.Portal;
+import fi.matiaspaavilainen.masuiteteleports.bungee.managers.Spawn;
+import fi.matiaspaavilainen.masuitewarps.bungee.Warp;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,10 +21,10 @@ import java.util.Set;
 
 public class BungeeSuite {
 
-    private Database db = MaSuiteConverter.db;
+    private Database db = ConnectionManager.db;
     private Connection connection = null;
     private PreparedStatement statement = null;
-    private Configuration config = new Configuration();
+    private BungeeConfiguration config = new BungeeConfiguration();
     private String bsPrefix = config.load("converter", "config.yml").getString("bungeesuite-prefix");
     private String msPrefix = config.load(null, "config.yml").getString("database.table-prefix");
 
@@ -82,7 +82,7 @@ public class BungeeSuite {
 
     public void convertHomes() {
         for (Home home : getHomes()) {
-            home.set(home);
+            home.create();
         }
         System.out.println("[MaSuite] [Converter] [Homes] Converting done");
     }
@@ -152,6 +152,7 @@ public class BungeeSuite {
         }
         System.out.println("[MaSuite] [Converter] [Portals] Converting done");
     }
+
     private Set<Warp> getWarps() {
         Set<Warp> warps = new HashSet<>();
         ResultSet rs = null;
@@ -198,7 +199,7 @@ public class BungeeSuite {
 
     public void convertWarps() {
         for (Warp warp : getWarps()) {
-            warp.create(warp);
+            warp.create();
         }
         System.out.println("[MaSuite] [Converter] [Warps] Converting done");
     }
@@ -207,7 +208,7 @@ public class BungeeSuite {
         Set<Spawn> spawns = new HashSet<>();
         ResultSet rs = null;
         try {
-            connection = MaSuiteTeleports.db.hikari.getConnection();
+            connection = db.hikari.getConnection();
             statement = connection.prepareStatement("SELECT * FROM " + bsPrefix + "spawns");
             rs = statement.executeQuery();
             while (rs.next()) {
@@ -265,10 +266,9 @@ public class BungeeSuite {
                 Thread.sleep(config.load("converter", "config.yml").getInt("wait-before-next") * 1000);
                 if (pdf.getUUID(rs.getString("playername")) != null) {
                     MaSuitePlayer msp = new MaSuitePlayer();
-                    msp.setUUID(pdf.getUUID(username));
+                    msp.setUniqueId(pdf.getUUID(username));
                     msp.setUsername(rs.getString("playername"));
                     msp.setNickname(rs.getString("nickname"));
-                    msp.setIpAddress(rs.getString("ipaddress"));
                     LocalDate date = rs.getDate("lastonline").toLocalDate();
                     msp.setFirstLogin(date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli());
                     msp.setLastLogin(date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli());
@@ -307,7 +307,7 @@ public class BungeeSuite {
 
     public void convertPlayers() {
         for (MaSuitePlayer msp : getPlayers()) {
-            msp.insert();
+            msp.create();
         }
         System.out.println("[MaSuite] [Converter] [MaSuitePlayers] Converting done");
     }

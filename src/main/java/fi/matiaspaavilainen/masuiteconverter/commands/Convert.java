@@ -2,7 +2,6 @@ package fi.matiaspaavilainen.masuiteconverter.commands;
 
 import fi.matiaspaavilainen.masuiteconverter.BungeeSuite;
 import fi.matiaspaavilainen.masuiteconverter.MaSuiteConverter;
-import fi.matiaspaavilainen.masuiteconverter.PlayerDataFetcher;
 import fi.matiaspaavilainen.masuiteconverter.ProxySuite;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;

@@ -3,7 +3,7 @@ package fi.matiaspaavilainen.masuiteconverter;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import fi.matiaspaavilainen.masuitecore.MaSuiteCore;
+import fi.matiaspaavilainen.masuitecore.bungee.MaSuiteCore;
 import net.md_5.bungee.api.ProxyServer;
 
 import java.io.IOException;

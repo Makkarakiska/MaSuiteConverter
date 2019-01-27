@@ -1,13 +1,14 @@
 package fi.matiaspaavilainen.masuiteconverter;
 
-import fi.matiaspaavilainen.masuitecore.config.Configuration;
-import fi.matiaspaavilainen.masuitecore.database.Database;
-import fi.matiaspaavilainen.masuitecore.managers.Location;
-import fi.matiaspaavilainen.masuitecore.managers.MaSuitePlayer;
-import fi.matiaspaavilainen.masuitehomes.Home;
-import fi.matiaspaavilainen.masuiteportals.Portal;
-import fi.matiaspaavilainen.masuiteteleports.managers.Spawn;
-import fi.matiaspaavilainen.masuitewarps.Warp;
+import fi.matiaspaavilainen.masuitecore.core.configuration.BungeeConfiguration;
+import fi.matiaspaavilainen.masuitecore.core.database.ConnectionManager;
+import fi.matiaspaavilainen.masuitecore.core.database.Database;
+import fi.matiaspaavilainen.masuitecore.core.objects.Location;
+import fi.matiaspaavilainen.masuitecore.core.objects.MaSuitePlayer;
+import fi.matiaspaavilainen.masuitehomes.core.Home;
+import fi.matiaspaavilainen.masuiteportals.core.Portal;
+import fi.matiaspaavilainen.masuiteteleports.bungee.managers.Spawn;
+import fi.matiaspaavilainen.masuitewarps.bungee.Warp;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,10 +22,10 @@ import java.util.UUID;
 
 public class ProxySuite {
 
-    private Database db = MaSuiteConverter.db;
+    private Database db = ConnectionManager.db;
     private Connection connection = null;
     private PreparedStatement statement = null;
-    private Configuration config = new Configuration();
+    private BungeeConfiguration config = new BungeeConfiguration();
     private String psPrefix = config.load("converter", "config.yml").getString("proxysuite-prefix");
 
     private Set<Home> getHomes() {
@@ -73,7 +74,7 @@ public class ProxySuite {
 
     public void convertHomes() {
         for (Home home : getHomes()) {
-            home.set(home);
+            home.create();
         }
         System.out.println("[MaSuite] [Converter] [Homes] Converting done");
     }
@@ -191,7 +192,7 @@ public class ProxySuite {
 
     public void convertWarps() {
         for (Warp warp : getWarps()) {
-            warp.create(warp);
+            warp.create();
         }
         System.out.println("[MaSuite] [Converter] [Warps] Converting done");
     }
@@ -255,10 +256,9 @@ public class ProxySuite {
             rs = statement.executeQuery();
             while (rs.next()) {
                 MaSuitePlayer msp = new MaSuitePlayer();
-                msp.setUUID(UUID.fromString(rs.getString("uuid")));
+                msp.setUniqueId(UUID.fromString(rs.getString("uuid")));
                 msp.setUsername(rs.getString("name"));
                 msp.setNickname(null);
-                msp.setIpAddress("not-provided");
                 LocalDate firstJoin = rs.getDate("first_join").toLocalDate();
                 LocalDate lastJoin = rs.getDate("last_seen").toLocalDate();
                 msp.setFirstLogin(firstJoin.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli());
@@ -296,7 +296,7 @@ public class ProxySuite {
 
     public void convertPlayers() {
         for (MaSuitePlayer msp : getPlayers()) {
-            msp.insert();
+            msp.create();
         }
         System.out.println("[MaSuite] [Converter] [MaSuitePlayers] Converting done");
     }
