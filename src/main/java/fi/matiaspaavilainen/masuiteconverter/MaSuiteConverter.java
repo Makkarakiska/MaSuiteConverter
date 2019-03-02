@@ -13,13 +13,15 @@ public class MaSuiteConverter extends Plugin {
     public static Boolean chat = false;
     public static Boolean core = false;
     public static Boolean portals = false;
+    private BungeeConfiguration config = new BungeeConfiguration();
     @Override
     public void onEnable() {
         super.onEnable();
 
         getProxy().getPluginManager().registerCommand(this, new Convert());
 
-        new BungeeConfiguration().create(this,"converter", "config.yml");
+        config.create(this,"converter", "config.yml");
+        config.addDefault("converter/config.yml", "gesuit-prefix", "");
         // Updator
         new Updator(new String[]{getDescription().getVersion(), getDescription().getName(), "61070"}).checkUpdates();
         setup();

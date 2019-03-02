@@ -3,6 +3,7 @@ package fi.matiaspaavilainen.masuiteconverter.commands;
 import fi.matiaspaavilainen.masuiteconverter.BungeeSuite;
 import fi.matiaspaavilainen.masuiteconverter.MaSuiteConverter;
 import fi.matiaspaavilainen.masuiteconverter.ProxySuite;
+import fi.matiaspaavilainen.masuiteconverter.geSuit;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Command;
@@ -23,6 +24,7 @@ public class Convert extends Command {
             if (list.contains(args[1].toLowerCase())) {
                 BungeeSuite bs = new BungeeSuite();
                 ProxySuite ps = new ProxySuite();
+                geSuit gs = new geSuit();
                 switch (args[1].toLowerCase()) {
                     case ("homes"):
                         if (MaSuiteConverter.homes) {
@@ -31,6 +33,8 @@ public class Convert extends Command {
                                 bs.convertHomes();
                             } else if (args[0].equalsIgnoreCase("proxysuite")) {
                                 ps.convertHomes();
+                            } else if (args[0].equalsIgnoreCase("gesuit")) {
+                                gs.convertHomes();
                             }
 
                         } else {
@@ -44,6 +48,8 @@ public class Convert extends Command {
                                 bs.convertPortals();
                             } else if (args[0].equalsIgnoreCase("proxysuite")) {
                                 ps.convertPortals();
+                            } else if (args[0].equalsIgnoreCase("gesuit")) {
+                                gs.convertPortals();
                             }
                         } else {
                             System.out.println("[MaSuite] [MaSuiteConverter] Portals are not initialized");
@@ -56,6 +62,8 @@ public class Convert extends Command {
                                 bs.convertWarps();
                             } else if (args[0].equalsIgnoreCase("proxysuite")) {
                                 ps.convertWarps();
+                            } else if (args[0].equalsIgnoreCase("gesuit")) {
+                                gs.convertWarps();
                             }
                         } else {
                             System.out.println("[MaSuite] [MaSuiteConverter] Warps are not initialized");
@@ -68,6 +76,8 @@ public class Convert extends Command {
                                 bs.convertSpawns();
                             } else if (args[0].equalsIgnoreCase("proxysuite")) {
                                 ps.convertSpawns();
+                            } else if (args[0].equalsIgnoreCase("gesuit")) {
+                                gs.convertSpawns();
                             }
                         } else {
                             System.out.println("[MaSuite] [MaSuiteConverter] Spawns are not initialized");
@@ -80,6 +90,8 @@ public class Convert extends Command {
                                 bs.convertPlayers();
                             } else if (args[0].equalsIgnoreCase("proxysuite")) {
                                 ps.convertPlayers();
+                            } else if (args[0].equalsIgnoreCase("gesuit")) {
+                                gs.convertPlayers();
                             }
                         } else {
                             System.out.println("[MaSuite] [MaSuiteConverter] Core is not initialized");
