@@ -257,7 +257,7 @@ public class BungeeSuite {
         ResultSet rs = null;
         try {
             connection = db.hikari.getConnection();
-            statement = connection.prepareStatement("SELECT * FROM " + msPrefix + "players");
+            statement = connection.prepareStatement("SELECT * FROM " + bsPrefix + "players");
             rs = statement.executeQuery();
             PlayerDataFetcher pdf = new PlayerDataFetcher();
             while (rs.next()) {
