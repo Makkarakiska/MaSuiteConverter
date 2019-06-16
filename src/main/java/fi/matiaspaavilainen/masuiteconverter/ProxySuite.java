@@ -256,7 +256,11 @@ public class ProxySuite {
             rs = statement.executeQuery();
             while (rs.next()) {
                 MaSuitePlayer msp = new MaSuitePlayer();
-                msp.setUniqueId(UUID.fromString(rs.getString("uuid")));
+                String uuid = rs.getString("uuid");
+                if(uuid.length() == 32) {
+                    uuid = uuid.substring(0,8) + "-" + uuid.substring(8, 12) + "-" + uuid.substring(12, 16) + "-" + uuid.substring(16, 20) + "-" + uuid.substring(20);
+                }
+                msp.setUniqueId(UUID.fromString(uuid));
                 msp.setUsername(rs.getString("name"));
                 msp.setNickname(null);
                 LocalDate firstJoin = rs.getDate("first_join").toLocalDate();
